@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <profiles>
+        <domainparticipant_factory profile_name="domainparticipant_factory_profile">
+        </domainparticipant_factory>
+
+        <participant profile_name="ParticipantProfile" is_default_profile="true">
+		    <domainId>0</domainId>
+            <rtps>
+                <name>MyParticipant</name>
+                <builtin>
+                    <initialPeersList>
+                        <locator>
+                            <udpv4>
+                                <address>10.197.203.21</address>
+                                <port>7400</port>
+                            </udpv4>
+                        </locator>
+						<locator>
+                            <udpv4>
+                                <address>10.197.203.22</address>
+                                <port>7400</port>
+                            </udpv4>
+                        </locator>
+						<locator>
+                            <udpv4>
+                                <address>10.197.203.23</address>
+                                <port>7400</port>
+                            </udpv4>
+                        </locator>
+                    </initialPeersList>
+                </builtin>
+            </rtps>
+        </participant>
+    </profiles>
+</dds>

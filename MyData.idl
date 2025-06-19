@@ -1,0 +1,3 @@
+struct MyData {
+    int32 data[12];
+};
