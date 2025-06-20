@@ -38,8 +38,9 @@ void QtWidgetsApplication2::initNodes()
 
     node2->createDataReader("TopicOfMyData");
     node2->createDataWriter("TopicOfMyData");
-    connect(subTimer, &QTimer::timeout, node2, &CalNode::receiveDataWithTake);
-    connect(node2, &CalNode::signalReceivedData, this, &QtWidgetsApplication2::onReceivedData);
+    //connect(subTimer, &QTimer::timeout, node2, &CalNode::receiveDataWithTake);
+    connect(subTimer, &QTimer::timeout, this, &QtWidgetsApplication2::onTimerTimeout);
+    connect(this, &QtWidgetsApplication2::signalReceivedData, this, &QtWidgetsApplication2::onReceivedData);
 
 }
 
@@ -51,7 +52,30 @@ void QtWidgetsApplication2::initConnect()
 void QtWidgetsApplication2::onPushButtonClicked()
 {
     //把界面上的参数传给publish方法，这里先省略，直接写死
-    node1->publish();
+    //node1->publish();
+    MyData myData;
+    myData.data({ 1, 7, 7, 8, 2, 7, 9, 6, 7, 7, 1, 0 });
+    DataWriter* writer = node1->getWriter("TopicOfMyData");
+    node1->publish(writer, &myData);
+
+    //if (writer) {
+    //    writer->write(&myData);
+    //}
+
+}
+
+void QtWidgetsApplication2::onTimerTimeout()
+{
+    // 获取你的 Reader，假设是 "TopicOfMyData"
+    DataReader* reader = node2->getReader("TopicOfMyData");
+    if (!reader)
+        return;
+
+    // 调用模板接收函数，传入回调
+    node2->receiveDataWithTake<MyData>(reader, [&](const MyData& data) {
+        std::array<int32_t, 12> arr = data.data();
+        emit signalReceivedData(arr);
+        });
 }
 
 void QtWidgetsApplication2::onReceivedData(std::array<int32_t, 12> data)

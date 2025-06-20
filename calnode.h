@@ -6,22 +6,21 @@
 
 #include "../types/MyDataPubSubTypes.hpp"
 #include "../types/OpticDataPubSubTypes.hpp"
+#include "../types/RadarData.hpp"
 
 #include <chrono>
 #include <thread>
 
+#include<unordered_map>
+
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
-
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
-
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
-
 #include <fastdds/dds/topic/TypeSupport.hpp>
 
 
@@ -61,14 +60,35 @@ public:
 	bool createTopic(const QString& topicName);
 	//创建DataWriter
 	bool createDataWriter(const QString& topicName);
+	DataWriter* getWriter(const QString& topicName);
 	//创建DataReader
 	bool createDataReader(const QString& topicName);
+	DataReader* getReader(const QString& topicName);
 	//发送数据
-	bool publish();
+	//bool publish();
+	bool publish(DataWriter* writer, void* data);
 	//接收数据
 	void receiveDataWithTake();
 	//清理
 	void cleanUp();
+
+	template<typename T>
+	void receiveDataWithTake(DataReader* reader, std::function<void(const T&)> callback)
+	{
+		if (!reader) return;
+
+		T data;
+		SampleInfo info;
+
+		while (reader->take_next_sample(&data, &info) == RETCODE_OK) {
+			if (info.valid_data) {
+				callback(data);
+			}
+			else {
+				break;
+			}
+		}
+	}
 private:
 	//节点id
 	QString mNodeId;
@@ -83,14 +103,15 @@ private:
 	//Topics
 	QMap<QString, Topic*> mTopics;
 	//Writer
-	DataWriter* mWriter;
+	//DataWriter* mWriter;
+	QMap<QString, DataWriter*> mWriters;
 	//Reader
-	DataReader* mReader;
-
+	//DataReader* mReader;
+	QMap<QString, DataReader*> mReaders;
 	TypeSupport mType;
 	TypeSupport mType2;
+	TypeSupport mType3;
 
-	MyData myData;
 signals:
 	void signalReceivedData(std::array<int32_t, 12> data);
 };

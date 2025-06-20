@@ -24,6 +24,7 @@ public:
     void onPushButtonClicked();
 public slots:
     void onReceivedData(std::array<int32_t, 12> data);
+    void onTimerTimeout();
 private:
     Ui::QtWidgetsApplication2Class ui;
     QListWidgetItem* item;
@@ -31,5 +32,7 @@ private:
     CalNode* node1;
     CalNode* node2;
     QTimer* subTimer;
+signals:
+    void signalReceivedData(std::array<int32_t, 12>& data);
 };
 
